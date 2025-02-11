@@ -1,0 +1,9 @@
+[package]
+name = "hello_world"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+linfa = "0.7.0"
+linfa-trees = "0.7.0"
+linfa-datasets = { version = "0.7.0", features = ["iris"] }
