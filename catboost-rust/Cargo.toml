@@ -1,0 +1,8 @@
+[package]
+name = "hello_world"
+version = "0.1.0"
+authors = [""]
+edition = "2021"
+
+[dependencies]
+catboost = { git = "https://github.com/catboost/catboost" }
