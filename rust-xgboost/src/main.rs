@@ -1,94 +1,33 @@
-// use xgboost_rs::{DMatrix, Booster};
-use xgboost_rs::{DMatrix};
-use xgboost_rs::parameters::tree::TreeBoosterParametersBuilder;
-// use xgboost_rs::parameters::BoosterParametersBuilder;
-// use xgboost_rs::parameters::BoosterType;
-// use xgboost_rs::learning::LearningTaskParametersBuilder;
-// use xgboost_rs::learning::Objective;
-// use xgboost_rs::learning::EvaluationMetric;
-// use xgboost_rs::learning::Metrics;
+extern crate xgboost;
+use xgboost::{parameters, DMatrix, Booster};
 
 fn main() {
+    // training matrix with 5 training examples and 3 features
+    let x_train = &[1.0, 1.0, 1.0,
+                     1.0, 1.0, 0.0,
+                     1.0, 1.0, 1.0,
+                     0.0, 0.0, 0.0,
+                     1.0, 1.0, 1.0];
+    let num_rows = 5;
+    let y_train = &[1.0, 1.0, 1.0, 0.0, 1.0];
 
-    let data_path = concat!(env!("CARGO_MANIFEST_DIR"), "/src");
-    let _dmat_train =
-        DMatrix::load(format!("{}/agaricus.txt.train?format=libsvm", data_path)).unwrap();
-    let _dmat_test =
-        DMatrix::load(format!("{}/agaricus.txt.test?format=libsvm", data_path)).unwrap();
+    let mut dtrain = DMatrix::from_dense(x_train, num_rows).unwrap();
+    dtrain.set_labels(y_train).unwrap();
 
-    let _tree_params = TreeBoosterParametersBuilder::default()
-        .max_depth(2)
-        .eta(1.0)
-        .build()
-        .unwrap();
-    // let learning_params = learning::LearningTaskParametersBuilder::default()
-    //     .objective(learning::Objective::BinaryLogistic)
-    //     .eval_metrics(learning::Metrics::Custom(vec![
-    //         learning::EvaluationMetric::MapCutNegative(4),
-    //         learning::EvaluationMetric::LogLoss,
-    //         learning::EvaluationMetric::BinaryErrorRate(0.5),
-    //     ]))
-    //     .build()
-    //     .unwrap();
-    // let params = parameters::BoosterParametersBuilder::default()
-    //     .booster_type(parameters::BoosterType::Tree(tree_params))
-    //     .learning_params(learning_params)
-    //     .verbose(false)
-    //     .build()
-    //     .unwrap();
-    // let mut booster =
-    //     Booster::new_with_cached_dmats(&params, &[&dmat_train, &dmat_test]).unwrap();
+    let x_test = &[0.7, 0.9, 0.6];
+    let num_rows = 1;
+    let y_test = &[1.0];
+    let mut dtest = DMatrix::from_dense(x_test, num_rows).unwrap();
+    dtest.set_labels(y_test).unwrap();
+    let evaluation_sets = &[(&dtrain, "train"), (&dtest, "test")];
 
-    // for i in 0..10 {
-    //     booster.update(&dmat_train, i).expect("update failed");
-    // }
+    let training_params = parameters::TrainingParametersBuilder::default()
+    .dtrain(&dtrain)
+    .evaluation_sets(Some(evaluation_sets))
+    .build()
+    .unwrap();
 
-    // let eps = 1e-6;
+    let bst = Booster::train(&training_params).unwrap();
 
-    // let train_metrics = booster.evaluate(&dmat_train, "default").unwrap();
-    // assert!(*train_metrics.get("logloss").unwrap() - 0.006_634 < eps);
-    // assert!(*train_metrics.get("map@4-").unwrap() - 0.001_274 < eps);
-
-    // let test_metrics = booster.evaluate(&dmat_test, "default").unwrap();
-    // assert!(*test_metrics.get("logloss").unwrap() - 0.006_92 < eps);
-    // assert!(*test_metrics.get("map@4-").unwrap() - 0.005_155 < eps);
-
-    // let v = booster.predict(&dmat_test).unwrap();
-    // assert_eq!(v.len(), dmat_test.num_rows());
-
-    // // first 10 predictions
-    // let expected_start = [
-    //     0.005_015_169_3,
-    //     0.988_446_7,
-    //     0.005_015_169_3,
-    //     0.005_015_169_3,
-    //     0.026_636_455,
-    //     0.117_893_63,
-    //     0.988_446_7,
-    //     0.012_314_71,
-    //     0.988_446_7,
-    //     0.000_136_560_63,
-    // ];
-
-    // // last 10 predictions
-    // let expected_end = [
-    //     0.002_520_344,
-    //     0.000_609_179_26,
-    //     0.998_810_05,
-    //     0.000_609_179_26,
-    //     0.000_609_179_26,
-    //     0.000_609_179_26,
-    //     0.000_609_179_26,
-    //     0.998_110_2,
-    //     0.002_855_195,
-    //     0.998_110_2,
-    // ];
-
-    // for (pred, expected) in v.iter().zip(&expected_start) {
-    //     assert!(pred - expected < eps);
-    // }
-
-    // for (pred, expected) in v[v.len() - 10..].iter().zip(&expected_end) {
-    //     assert!(pred - expected < eps);
-    // }
+    println!("{:?}", bst.predict(&dtest).unwrap());
 }

@@ -1,8 +1,10 @@
 [package]
 name = "hello_world"
-version = "0.1.0"
-edition = "2021"
+version = "0.2.0"
+description = "Machine learning using XGBoost"
+documentation = "https://docs.rs/xgboost"
+readme = "README.md"
 
 [dependencies]
-xgboost-rs = "=0.3.0"
-cc = "1.0"
+xgboost = "0.1.4"
+
