@@ -37,7 +37,7 @@ RUN /bin/bash -c "source activate $ENV_NAME && \
 ENV LD_LIBRARY_PATH=/opt/conda/envs/$ENV_NAME/lib:$LD_LIBRARY_PATH
 
 # Copy the sample C++ file
-COPY sample_xgb.cpp /xgboost/sample_xgb.cpp
+COPY xgb_rust_versus.cpp /xgboost/xgb_rust_versus.cpp
 
 # Compile the C++ program using the Conda environment's compiler
 RUN /bin/bash -c "source activate $ENV_NAME && \
